@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Coding agent</title>
+  <style>
+    :root { --b:#2a3340; --bg:#f4f6f8; --t:#1a1a1a; --m:#5c6570; }
+    * { box-sizing: border-box; }
+    body { margin:0; font:15px/1.45 system-ui,sans-serif; background:var(--bg); color:var(--t); }
+    .w { max-width:900px; margin:0 auto; padding:1.25rem 1rem 3rem; }
+    h1 { font-size:1.35rem; margin:0 0 .35rem; }
+    .lead { color:var(--m); margin:0 0 1.25rem; font-size:.9rem; }
+    .panel { background:#fff; border:1px solid #dde2e8; border-radius:8px; padding:1rem; }
+    label { display:block; margin-bottom:.75rem; font-size:.8rem; color:var(--m); }
+    input[type=file] { width:100%; margin-top:.2rem; }
+    button { font:inherit; padding:.5rem 1rem; border-radius:6px; border:1px solid var(--b); background:var(--b); color:#fff; cursor:pointer; }
+    button:disabled { opacity:.5; cursor:not-allowed; }
+    #s { margin-top:.75rem; font-size:.85rem; color:var(--m); }
+    #s.err { color:#b00020; }
+    .hid { display:none; }
+    h2 { font-size:1rem; margin:1.5rem 0 .5rem; }
+    h2:first-of-type { margin-top:0; }
+    .sc { overflow-x:auto; border:1px solid #dde2e8; border-radius:6px; background:#fff; }
+    table { width:100%; border-collapse:collapse; font-size:.8rem; }
+    th,td { text-align:left; padding:.4rem .5rem; border-bottom:1px solid #eee; vertical-align:top; }
+    th { color:var(--m); font-weight:600; }
+    .cd { white-space:pre-wrap; word-break:break-word; }
+    .fg { color:#8a6d00; font-size:.75rem; }
+    #dl { margin-top:.75rem; background:#fff; color:var(--b); }
+  </style>
+</head>
+<body>
+  <div class="w">
+    <h1>Coding agent</h1>
+    <p class="lead">CSV ответов + codebook (JSON/CSV) → таблица кодов, частоты, ручная проверка.</p>
+    <div class="panel">
+      <form id="f">
+        <label>Ответы (CSV)<input type="file" name="responses" accept=".csv,text/csv" required /></label>
+        <label>Codebook<input type="file" name="codebook" accept=".json,.csv" required /></label>
+        <button type="submit" id="go">Запустить</button>
+      </form>
+      <p id="s" aria-live="polite"></p>
+    </div>
+    <section id="r" class="hid">
+      <h2>Кодировка</h2>
+      <div class="sc"><table><thead><tr><th>ID</th><th>Ответ</th><th>Коды</th><th>Проверка</th></tr></thead><tbody id="t1"></tbody></table></div>
+      <h2>Частоты</h2>
+      <div class="sc"><table><thead><tr><th>Код</th><th>Название</th><th>n</th><th>%</th><th>% респ.</th></tr></thead><tbody id="t2"></tbody></table></div>
+      <h2>На проверку</h2>
+      <p id="mc" style="color:var(--m);font-size:.85rem"></p>
+      <div class="sc"><table><thead><tr><th>ID</th><th>Ответ</th><th>Коды</th></tr></thead><tbody id="t3"></tbody></table></div>
+      <button type="button" id="dl">Скачать JSON</button>
+    </section>
+  </div>
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => { const d = document.createElement("div"); d.textContent = s ?? ""; return d.innerHTML; };
+    let last = null;
+    $("f").onsubmit = async (e) => {
+      e.preventDefault();
+      $("s").textContent = ""; $("s").classList.remove("err"); $("r").classList.add("hid"); $("go").disabled = true;
+      $("s").textContent = "Кодирование…";
+      try {
+        const res = await fetch("/api/code", { method: "POST", body: new FormData($("f")) });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.detail || res.statusText);
+        last = data;
+        $("t1").innerHTML = (data.coding_table || []).map((row) =>
+          `<tr><td>${esc(row.respondent_id)}</td><td>${esc(row.answer)}</td><td class="cd">${esc((row.codes||[]).join(", "))}</td><td class="fg">${row.needs_manual_review?"да":""}</td></tr>`).join("");
+        $("t2").innerHTML = (data.frequencies || []).map((f) =>
+          `<tr><td>${esc(f.code)}</td><td>${esc(f.label)}</td><td>${f.n}</td><td>${f.pct_of_assignments}</td><td>${f.pct_of_respondents}</td></tr>`).join("");
+        const m = data.manual_review || [];
+        $("mc").textContent = m.length ? "Записей: " + m.length : "Пусто.";
+        $("t3").innerHTML = m.map((row) =>
+          `<tr><td>${esc(row.respondent_id)}</td><td>${esc(row.answer)}</td><td class="cd">${esc((row.codes||[]).join(", "))}</td></tr>`).join("");
+        $("r").classList.remove("hid");
+        $("s").textContent = "Готово. N=" + (data.meta?.respondents ?? "—");
+      } catch (err) { $("s").textContent = err.message || String(err); $("s").classList.add("err"); }
+      finally { $("go").disabled = false; }
+    };
+    $("dl").onclick = () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([JSON.stringify(last, null, 2)], { type: "application/json" }));
+      a.download = "coding-result.json"; a.click(); URL.revokeObjectURL(a.href);
+    };
+  </script>
+</body>
+</html>

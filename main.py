@@ -5,8 +5,7 @@ from pathlib import Path
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse, JSONResponse
 
 from app.coding_service import code_responses
 from app.parsers import parse_codebook_csv, parse_codebook_json, parse_responses_csv
@@ -77,5 +76,12 @@ async def health():
 
 
 _static = Path(__file__).resolve().parent.parent / "static"
-if _static.is_dir():
-    app.mount("/", StaticFiles(directory=str(_static), html=True), name="static")
+_index = _static / "index.html"
+
+
+@app.get("/")
+async def root():
+    """Без mount('/') — иначе на части окружений ломается порядок маршрутов."""
+    if _index.is_file():
+        return FileResponse(_index, media_type="text/html; charset=utf-8")
+    return JSONResponse({"error": "static/index.html не найден"}, status_code=404)

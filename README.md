@@ -7,7 +7,7 @@
 ```
 coding-agent-web/
   app/                 # FastAPI: API и логика
-  static/              # интерфейс (HTML/JS/CSS)
+  static/              # index.html (встроенные стили и скрипт)
   examples/            # примеры файлов для проверки
   requirements.txt
   render.yaml          # опционально: Blueprint для Render

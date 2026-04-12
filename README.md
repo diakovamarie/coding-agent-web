@@ -62,7 +62,7 @@ python run.py
 
 | Переменная | Обязательно | Описание |
 |------------|-------------|----------|
-| `OPENAI_API_KEY` | да | Ключ API OpenAI |
+| `OPENAI_API_KEY` | да | Ключ API OpenAI `https://openrouter.ai/settings/keys?utm_source=signup-success`|
 | `OPENAI_MODEL` | нет | Модель чата (по умолчанию `gpt-4o-mini`) |
 | `OPENAI_API_URL` | нет | URL `.../v1/chat/completions` при совместимом прокси |
 | `CORS_ORIGINS` | нет | Список origin через запятую или `*` |

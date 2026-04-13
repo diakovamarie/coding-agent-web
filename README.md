@@ -23,7 +23,7 @@ coding-agent-web/
 python -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-export OPENAI_API_KEY="sk-..."   # Windows PowerShell: $env:OPENAI_API_KEY="sk-..."
+export OPENROUTER_API_KEY="sk-..."   # Windows PowerShell: $env:OPENAI_API_KEY="sk-..."
 python run.py
 # или: uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
@@ -38,7 +38,7 @@ python run.py
    - **Runtime:** Python
    - **Build Command:** `pip install -r requirements.txt`
    - **Start Command:** `python run.py` (в `run.py` подставляется переменная `PORT` от Render)
-4. **Environment** → добавь секрет **`OPENAI_API_KEY`** (ключ OpenAI).
+4. **Environment** → добавь секрет **`"OPENROUTER_API_KEY"`** (ключ "OPENROUTER_API_KEY").
 5. Опционально: **`OPENAI_MODEL`** (по умолчанию `gpt-4o-mini`), **`CORS_ORIGINS`** (через запятую, если фронт на другом домене).
 
 Если используешь `render.yaml` из репозитория, при создании сервиса выбери подключение Blueprint — переменные подтянутся из файла, ключ `OPENAI_API_KEY` нужно задать вручную в панели.
@@ -62,7 +62,7 @@ python run.py
 
 | Переменная | Обязательно | Описание |
 |------------|-------------|----------|
-| `OPENAI_API_KEY` | да | Ключ API OpenAI |
+| `OPENROUTER_API_KEY` | да | Ключ OPENROUTER_API_KEY |
 | `OPENAI_MODEL` | нет | Модель чата (по умолчанию `gpt-4o-mini`) |
 | `OPENAI_API_URL` | нет | URL `.../v1/chat/completions` при совместимом прокси |
 | `CORS_ORIGINS` | нет | Список origin через запятую или `*` |

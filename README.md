@@ -38,7 +38,7 @@ python run.py
    - **Runtime:** Python
    - **Build Command:** `pip install -r requirements.txt`
    - **Start Command:** `python run.py` (в `run.py` подставляется переменная `PORT` от Render)
-4. **Environment** → добавь секрет **`"OPENROUTER_API_KEY"`** (ключ "OPENROUTER_API_KEY").
+4. **Environment** → добавь секрет **`OPENROUTER_API_KEY`** (ключ "OPENROUTER_API_KEY").
 5. Опционально: **`OPENAI_MODEL`** (по умолчанию `gpt-4o-mini`), **`CORS_ORIGINS`** (через запятую, если фронт на другом домене).
 
 Если используешь `render.yaml` из репозитория, при создании сервиса выбери подключение Blueprint — переменные подтянутся из файла, ключ `OPENAI_API_KEY` нужно задать вручную в панели.

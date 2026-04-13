@@ -9,8 +9,8 @@ import httpx
 
 from app.parsers import CodebookEntry, ResponseRow
 
-OPENAI_URL = os.environ.get("OPENAI_API_URL", "https://api.openai.com/v1/chat/completions")
-MODEL = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
+OPENAI_URL = os.environ.get("OPENAI_API_URL", "https://openrouter.ai/api/v1/chat/completions")
+MODEL = os.environ.get("OPENAI_MODEL", "openai/gpt-4o-mini")
 
 RESERVED_OTHER = "ДРУГОЕ"
 RESERVED_UNCLEAR = "ЗАТРУДНЯЮСЬ ОТВЕТИТЬ"
@@ -79,6 +79,8 @@ async def _call_openai(user_content: str) -> str:
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
+        "HTTP-Referer": "https://your-app.onrender.com",
+        "X-Title": "Coding Agent",
     }
 
     async with httpx.AsyncClient(timeout=120.0) as client:
